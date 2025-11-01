@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState,useContext } from "react";
 import { Link } from "react-router-dom";
 import instance from "./axios";
 import { useNavigate } from "react-router-dom";
+import { MyContext } from "./UseContext";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,9 @@ const Register = () => {
     email: "",
     password: "",
   });
+ 
+
+  const {userId,setId}=useContext(MyContext)
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,12 +28,16 @@ const Register = () => {
     setLoading(true);
    
     try {
-      const res = await instance.post("/profile/registration", formData, {withCredentials: true});
       console.log(formData)
-      console.log("Register response:", res.data);
+      const res = await instance.post("/profile/registration", formData, {withCredentials: true});
+     
+      console.log("Register response:", res.data.user._id);
+      let userid= res.data.user._id
+      setId(userid)
+      localStorage.setItem("userId", res.data.user._id);
       setMessage(res.data.message || "Registration successful!");
       setFormData({ fullName: "", username: "", email: "", password: "" });
-      navigate("/")
+      navigate("/Dob")
     } catch (error) {
       console.error("Registration error:", error);
       setMessage(error.response?.data?.message || "Something went wrong!");
@@ -39,7 +47,9 @@ const Register = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 px-4">
+    <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-b from-[#8d8daa] via-[#dfdfde] to-[#f7f5f2]">
+    
+
       {/* Register Card */}
       <div className="w-full max-w-sm border border-gray-200 bg-white rounded-lg p-8 shadow-lg">
         <h1 className="text-4xl font-semibold text-center mb-6 text-gray-900 tracking-tight" style={{ fontFamily: 'Billabong, cursive' }}>
@@ -150,3 +160,4 @@ const Register = () => {
 };
 
 export default Register;
+
