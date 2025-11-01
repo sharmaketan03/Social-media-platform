@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node for Backend
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install Backend dependencies
         working-directory: ./Backend
@@ -39,7 +39,7 @@ jobs:
       - name: Setup Node for Frontend
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install Frontend dependencies
         working-directory: ./Frontend
