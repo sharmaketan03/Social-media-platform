@@ -114,4 +114,40 @@ export const checkAuth = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
+}
+
+
+
+export const DateOFBirth = async (req, res) => {
+  try {
+ 
+    const {userId, dob } = req.body;
+    console.log(dob,userId)
+
+    if (!dob) {
+      return res.status(400).json({ message: "DOB is required" });
+    }
+
+    const formattedDOB = new Date(dob);
+    console.log(formattedDOB)
+
+    const updatedUser = await UserAuth.findByIdAndUpdate(
+      userId,
+      { dob: formattedDOB },
+      { new: true }
+    );
+   console.log(updatedUser)
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "DOB updated successfully",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    console.log("DOB update error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };

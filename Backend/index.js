@@ -12,7 +12,7 @@ app.use(cookieParser());
 ConnectDB();
 
 const corsOptions = {
-  origin: process.env.FrontendLocalUrl || "http://localhost:5173",
+  origin: [process.env.FrontendLocalUrl || "http://localhost:5173",process.env.FrontendLocalRender],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 };

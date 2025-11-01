@@ -2,7 +2,7 @@ import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./Login";
 import Register from "./Register";
-
+import Dob from "./Dob";
 const router = createBrowserRouter([
   {
     index: true,
@@ -11,7 +11,10 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
-  },
+  },{
+    path:"/Dob",
+    element:<Dob/>
+  }
 ]);
 
 function ReactRouter() {

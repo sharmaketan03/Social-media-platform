@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "https://res.cloudinary.com/default-profile-pic.png",
     },
+    dob:{type:Date,default:"",required:false},
     bio: { type: String, default: "" },
     website: { type: String, default: "" },
 
