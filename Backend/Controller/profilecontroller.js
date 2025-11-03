@@ -155,15 +155,21 @@ export const DateOFBirth = async (req, res) => {
     updatedUser.otpExpire = Date.now() + 5 * 60 * 1000;
     await updatedUser.save({ validateBeforeSave: false });
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: updatedUser.email,
-      subject: "Email Verification Code",
-      html: `<h2>Your OTP Code</h2><p style="font-size:20px;font-weight:bold">${otp}</p>`,
-    });
+    try {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: updatedUser.email,
+        subject: "Email Verification Code",
+        html: `<h2>Your OTP Code</h2><p style="font-size:20px;font-weight:bold">${otp}</p>`,
+      });
+    } catch (mailErr) {
+      console.log("Email send fail but continue:", mailErr);
+      // Continue without throwing error
+    }
 
-    res.status(200).json({
-      message: "DOB updated & OTP sent to email",
+    return res.status(200).json({
+      success: true,
+      message: "DOB updated & OTP sent (or saved)",
       userId: updatedUser._id,
     });
 
@@ -172,6 +178,7 @@ export const DateOFBirth = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
