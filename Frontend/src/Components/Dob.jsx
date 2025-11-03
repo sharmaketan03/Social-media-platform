@@ -34,12 +34,9 @@ const Dob = () => {
       );
 
       console.log("DOB Response:", res.data);
-
-      if (res.data?.message?.includes("DOB updated")) {
-        console.log("Navigate this page")
+       console.log("Navigate this page")
         navigate("/EmailVerify"); 
-        return;
-      }
+      
 
     } catch (err) {
       console.log("birthday Dob error", err);
