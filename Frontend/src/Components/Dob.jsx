@@ -1,23 +1,20 @@
 import { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; 
 import { Cake } from "lucide-react";
 import instance from "./axios";
-import {MyContext} from "./UseContext";
-import { useNavigate } from "react-router-dom";
+import { MyContext } from "./UseContext";
 
-const Dob = ({ onNext }) => {
+const Dob = () => {
   const [dob, setDob] = useState({ month: "", day: "", year: "" });
-  let navigate = useNavigate();
-  
-  const handleChange = async(e) => {
+  const navigate = useNavigate();
+  const { userId } = useContext(MyContext);
+
+  const handleChange = (e) => {
     setDob({ ...dob, [e.target.name]: e.target.value });
   };
-  
-  let {userId} = useContext(MyContext);
-  console.log("userId:", userId);
-  
-  const handleSubmit = async(e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { month, day, year } = dob;
 
@@ -28,15 +25,24 @@ const Dob = ({ onNext }) => {
 
     const finalDob = `${year}-${month}-${day}`;
     console.log("DOB =>", finalDob);
+
     try {
-      let res = await instance.put("/profile/DoB", {dob: finalDob, userId: userId}, {withCredentials: true});
-      console.log(res);
-      navigate("/EmailVerify");
-    } catch(err) {
+      let res = await instance.put(
+        "/profile/DoB",
+        { dob: finalDob, userId },
+        { withCredentials: true }
+      );
+
+      console.log("DOB Response:", res.data);
+
+      if (res.data?.message?.includes("DOB updated")) {
+        navigate("/EmailVerify"); // ✅ Now it will navigate
+        return;
+      }
+
+    } catch (err) {
       console.log("birthday Dob error", err);
     }
-
-    onNext && onNext(finalDob);
   };
 
   const months = [
@@ -54,7 +60,6 @@ const Dob = ({ onNext }) => {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="bg-white p-10 shadow-2xl rounded-3xl w-full max-w-md text-center"
       >
-        {/* Icon */}
         <div className="inline-flex p-5 bg-pink-50 rounded-full mb-5">
           <Cake size={48} className="text-pink-500" strokeWidth={2} />
         </div>
@@ -63,46 +68,26 @@ const Dob = ({ onNext }) => {
         <p className="text-gray-500 text-sm mb-2">
           This won't be part of your public profile.
         </p>
-        <button className="text-indigo-600 text-sm mb-6 font-semibold hover:underline">
-          Why do I need to provide my date of birth?
-        </button>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="flex gap-3">
-            <select 
-              name="month" 
-              className="border-2 border-gray-200 rounded-xl p-3 w-1/3 text-sm font-medium bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-              value={dob.month} 
-              onChange={handleChange}
-            >
+            <select name="month" className="border-2 border-gray-200 rounded-xl p-3 w-1/3 text-sm font-medium bg-gray-50"
+              value={dob.month} onChange={handleChange}>
               <option value="">Month</option>
               {months.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
             </select>
 
-            <select 
-              name="day" 
-              className="border-2 border-gray-200 rounded-xl p-3 w-1/3 text-sm font-medium bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-              value={dob.day} 
-              onChange={handleChange}
-            >
+            <select name="day" className="border-2 border-gray-200 rounded-xl p-3 w-1/3 text-sm font-medium bg-gray-50"
+              value={dob.day} onChange={handleChange}>
               <option value="">Day</option>
               {days.map((d) => <option key={d} value={d}>{d}</option>)}
             </select>
 
-            <select 
-              name="year" 
-              className="border-2 border-gray-200 rounded-xl p-3 w-1/3 text-sm font-medium bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-              value={dob.year} 
-              onChange={handleChange}
-            >
+            <select name="year" className="border-2 border-gray-200 rounded-xl p-3 w-1/3 text-sm font-medium bg-gray-50"
+              value={dob.year} onChange={handleChange}>
               <option value="">Year</option>
               {years.map((y) => <option key={y} value={y}>{y}</option>)}
             </select>
-          </div>
-
-          <div className="text-xs text-gray-500 space-y-1">
-            <p>You need to enter your birth date.</p>
-            <p>Use your real date of birth.</p>
           </div>
 
           <button 
@@ -114,20 +99,11 @@ const Dob = ({ onNext }) => {
         </form>
 
         <Link 
-          to="/register" 
+          to="/register"
           className="block mt-4 text-indigo-600 font-semibold text-sm hover:underline"
         >
           Go back
         </Link>
-
-        <div className="border-t border-gray-200 mt-6 pt-5">
-          <p className="text-sm text-gray-600">
-            Have an account?{" "}
-            <span className="text-indigo-600 font-semibold cursor-pointer hover:underline">
-              Log in
-            </span>
-          </p>
-        </div>
       </motion.div>
     </div>
   );
