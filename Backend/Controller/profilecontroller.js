@@ -2,6 +2,7 @@
  import bcrypt from "bcryptjs";
 import UserAuth from "../Models/Profile.js";
 import jwt from "jsonwebtoken"
+import nodemailer from "nodemailer"
 
 export const registerUser = async (req, res) => {
   try {
@@ -118,36 +119,129 @@ export const checkAuth = async (req, res) => {
 
 
 
+
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+     user: "ketan301024@gmail.com",
+        pass: "wazf xyqj axlh mtyc",
+  },
+});
+
 export const DateOFBirth = async (req, res) => {
   try {
- 
-    const {userId, dob } = req.body;
-    console.log(dob,userId)
+    const { userId, dob } = req.body;
 
     if (!dob) {
       return res.status(400).json({ message: "DOB is required" });
     }
 
+   
     const formattedDOB = new Date(dob);
-    console.log(formattedDOB)
 
     const updatedUser = await UserAuth.findByIdAndUpdate(
       userId,
       { dob: formattedDOB },
       { new: true }
     );
-   console.log(updatedUser)
+
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
+   
+    const userEmail = updatedUser.email;
+
+ 
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    
+    updatedUser.otp = otp;
+    updatedUser.otpExpire = Date.now() + 5 * 60 * 1000; // 5 min
+    await updatedUser.save();
+
+  
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: userEmail,
+      subject: "Email Verification Code",
+      html: `<h2>Your OTP Code</h2><p style="font-size:20px;font-weight:bold">${otp}</p>`,
+    });
+
     res.status(200).json({
-      message: "DOB updated successfully",
-      user: updatedUser,
+      message: "DOB updated & OTP sent to email",
+      userId: updatedUser._id,
     });
 
   } catch (error) {
     console.log("DOB update error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
+export async function emailverify(req, res) {
+  try {
+    const { email, otp } = req.body;
+    console.log(email,otp)
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email & OTP required" });
+    }
+
+    const user = await UserAuth.findOne({ email });
+    console.log(user)
+    if (!user) return res.status(400).json({ message: "Invalid Email" });
+    console.log(user.otp)
+    if (toString(user.otp) !==toString( otp)) {
+      return res.status(400).json({ message: "Invalid OTP ❌" });
+    }
+
+    if (user.otpExpire < Date.now()) {
+      return res.status(400).json({ message: "OTP Expired ❌" });
+    }
+
+    // ✅ OTP success
+    user.otp = null;
+    user.otpExpire = null;
+    await user.save();
+
+    return res.status(200).json({ message: "Email Verified Successfully ✅" });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server Error" });
+  }
+}
+
+
+export const updateProfile = async (req, res) => {
+  console.log("✅ Reached updateProfile controller");
+  try {
+    const { id } = req.params;                 
+    const { bio } = req.body;
+
+    console.log("User ID:", id);
+    console.log("Bio:", bio);
+    console.log("File object:", req.file);    
+
+    const updatedData = {};
+    if (bio !== undefined) updatedData.bio = bio;
+    if (req.file) {
+  updatedData.profilePic = req.file.path || req.file.secure_url;
+}
+
+    const user = await UserAuth.findByIdAndUpdate(id, updatedData, { new: true }).select("email bio profilePic _id");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: { id: user._id, email: user.email, bio: user.bio, profilePic: user.profilePic }
+    });
+  } catch (error) {
+    console.error("❌ Error updating profile:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
