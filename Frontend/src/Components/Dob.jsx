@@ -36,7 +36,8 @@ const Dob = () => {
       console.log("DOB Response:", res.data);
 
       if (res.data?.message?.includes("DOB updated")) {
-        navigate("/EmailVerify"); // ✅ Now it will navigate
+        console.log("Navigate this page")
+        navigate("/EmailVerify"); 
         return;
       }
 
