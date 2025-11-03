@@ -223,7 +223,7 @@ const Register = () => {
         initial={{ scale: 0.95, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md bg-white rounded-3xl p-10 shadow-2xl"
+           className="w-full max-w-md bg-white rounded-3xl p-10 shadow-2xl"
       >
         {/* Instagram Logo */}
         <div className="flex justify-center mb-6">

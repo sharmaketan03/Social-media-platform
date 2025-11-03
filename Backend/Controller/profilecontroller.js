@@ -137,31 +137,25 @@ export const DateOFBirth = async (req, res) => {
       return res.status(400).json({ message: "DOB is required" });
     }
 
-   
     const formattedDOB = new Date(dob);
 
     const updatedUser = await UserAuth.findByIdAndUpdate(
       userId,
       { dob: formattedDOB },
-      { new: true }
+      { new: true, runValidators: false }  
     );
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-   
     const userEmail = updatedUser.email;
-
- 
     const otp = Math.floor(100000 + Math.random() * 900000);
 
-    
     updatedUser.otp = otp;
-    updatedUser.otpExpire = Date.now() + 5 * 60 * 1000; // 5 min
-    await updatedUser.save();
+    updatedUser.otpExpire = Date.now() + 5 * 60 * 1000;
+    await updatedUser.save({ validateBeforeSave: false });
 
-  
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: userEmail,
@@ -169,17 +163,16 @@ export const DateOFBirth = async (req, res) => {
       html: `<h2>Your OTP Code</h2><p style="font-size:20px;font-weight:bold">${otp}</p>`,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "DOB updated & OTP sent to email",
       userId: updatedUser._id,
     });
 
   } catch (error) {
     console.log("DOB update error:", error);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 
 
 
