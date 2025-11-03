@@ -142,14 +142,13 @@ export const DateOFBirth = async (req, res) => {
     const updatedUser = await UserAuth.findByIdAndUpdate(
       userId,
       { dob: formattedDOB },
-      { new: true, runValidators: false }  
+      { new: true, runValidators: false }
     );
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const userEmail = updatedUser.email;
     const otp = Math.floor(100000 + Math.random() * 900000);
 
     updatedUser.otp = otp;
@@ -158,21 +157,22 @@ export const DateOFBirth = async (req, res) => {
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: userEmail,
+      to: updatedUser.email,
       subject: "Email Verification Code",
       html: `<h2>Your OTP Code</h2><p style="font-size:20px;font-weight:bold">${otp}</p>`,
     });
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "DOB updated & OTP sent to email",
       userId: updatedUser._id,
     });
 
   } catch (error) {
     console.log("DOB update error:", error);
-    return res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
