@@ -78,12 +78,12 @@ export const loginUser = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRE }
     );
 
-   
+   const isProduction=process.env.NODE_ENV=="production"
     return res
       .cookie("token", token, {
         httpOnly: true,
-        secure: false,       
-        sameSite: "lax",   
+        secure: isProduction,       
+        sameSite: isProduction?"None":"lax",   
         path:"/",  
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
@@ -250,10 +250,12 @@ export async function LogOut(req,res){
 
 
   try {
+
+    const isProduction=process.env.NODE_ENV=="production"
     res.clearCookie("token", {
       httpOnly: true,
-        secure: false,       
-        sameSite: "lax",   
+        secure: isProduction,       
+        sameSite:isProduction?"None":"lax",   
         path:"/",  
         maxAge: 7 * 24 * 60 * 60 * 1000,    // important for frontend-backend cross domain
     });
