@@ -7,6 +7,10 @@ import sgMail from "@sendgrid/mail";
 import "dotenv/config"
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+console.log("SENDGRID KEY:", process.env.SENDGRID_API_KEY ? "✅ Loaded" : "❌ Not Loaded");
+console.log("FROM EMAIL:", process.env.FROM_EMAIL);
+
+
 
 export const registerUser = async (req, res) => {
   try {
