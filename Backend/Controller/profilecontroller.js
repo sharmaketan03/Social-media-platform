@@ -204,6 +204,11 @@ export const DateOFBirth = async (req, res) => {
     updatedUser.otpExpire = Date.now() + 5 * 60 * 1000;
     await updatedUser.save({ validateBeforeSave: false });
 
+    console.log("Sending OTP to:", updatedUser.email);
+console.log("FROM_EMAIL =", process.env.FROM_EMAIL);
+console.log("SENDGRID KEY =", process.env.SENDGRID_API_KEY ? "Loaded ✅" : "Missing ❌");
+
+
     // ✅ SendGrid Email send
     const msg = {
       to: updatedUser.email, 
