@@ -93,7 +93,7 @@ import { MyContext } from "./UseContext";
 import { motion } from "framer-motion";
 import { Camera } from "lucide-react";
 import instance from "./axios";
-
+import { useNavigate} from "react-router-dom";
 function ProfileUpdate() {
   const { userId } = useContext(MyContext);
   const fileRef = useRef(null);
@@ -101,7 +101,7 @@ function ProfileUpdate() {
   const [preview, setPreview] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [bio, setBio] = useState("");
-
+   let navigate=useNavigate()
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -128,6 +128,7 @@ function ProfileUpdate() {
 
       alert("Profile updated successfully ✅");
       console.log(res.data);
+      navigate("/")
     } catch (error) {
       console.log(error);
       alert("Profile update failed ❌");

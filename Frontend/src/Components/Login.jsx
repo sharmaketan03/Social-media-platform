@@ -221,7 +221,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Instagram, Loader2, Mail, Lock } from "lucide-react";
 import instance from "./axios";
-
+import { useNavigate } from "react-router-dom";
 const floatingTexts = [
   "Connect with Friends",
   "Share Moments",
@@ -235,7 +235,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [floatIndex, setFloatIndex] = useState(0);
-
+let navigate=useNavigate()
   useEffect(() => {
     const interval = setInterval(() => {
       setFloatIndex((i) => (i + 1) % floatingTexts.length);
@@ -250,10 +250,11 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      const res = await instance.post("/profile/login", formData);
+      const res = await instance.post("/profile/login", formData,{withCredentials:true});
       if (res.status === 200) {
         setFormData({ email: "", password: "" });
         alert("Login successful 🎉");
+        navigate("/home")
       } else setError("Invalid credentials. Try again.");
     } catch {
       setError("Something went wrong!");
