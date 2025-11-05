@@ -2,7 +2,11 @@
  import bcrypt from "bcryptjs";
 import UserAuth from "../Models/Profile.js";
 import jwt from "jsonwebtoken"
-import nodemailer from "nodemailer"
+// import nodemailer from "nodemailer"
+import sgMail from "@sendgrid/mail";
+import "dotenv/config"
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 
 export const registerUser = async (req, res) => {
   try {
@@ -116,13 +120,63 @@ export const checkAuth = async (req, res) => {
 
 
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-     user: "ketan301024@gmail.com",
-        pass: "wazf xyqj axlh mtyc",
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//      user: "ketan301024@gmail.com",
+//         pass: "wazf xyqj axlh mtyc",
+//   },
+// });
+
+// export const DateOFBirth = async (req, res) => {
+//   try {
+//     const { userId, dob } = req.body;
+
+//     if (!dob) {
+//       return res.status(400).json({ message: "DOB is required" });
+//     }
+
+//     const formattedDOB = new Date(dob);
+
+//     const updatedUser = await UserAuth.findByIdAndUpdate(
+//       userId,
+//       { dob: formattedDOB },
+//       { new: true, runValidators: false }
+//     );
+
+//     if (!updatedUser) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     const otp = Math.floor(100000 + Math.random() * 900000);
+
+//     updatedUser.otp = otp;
+//     updatedUser.otpExpire = Date.now() + 5 * 60 * 1000;
+//     await updatedUser.save({ validateBeforeSave: false });
+
+//     try {
+//       await transporter.sendMail({
+//         from: process.env.EMAIL_USER,
+//         to: updatedUser.email,
+//         subject: "Email Verification Code",
+//         html: `<h2>Your OTP Code</h2><p style="font-size:20px;font-weight:bold">${otp}</p>`,
+//       });
+//     } catch (mailErr) {
+//       console.log("Email send fail but continue:", mailErr);
+//       // Continue without throwing error
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "DOB updated & OTP sent (or saved)",
+//       userId: updatedUser._id,
+//     });
+
+//   } catch (error) {
+//     console.log("DOB update error:", error);
+//     return res.status(500).json({ message: error.message });
+//   }
+// };
 
 export const DateOFBirth = async (req, res) => {
   try {
@@ -150,16 +204,22 @@ export const DateOFBirth = async (req, res) => {
     updatedUser.otpExpire = Date.now() + 5 * 60 * 1000;
     await updatedUser.save({ validateBeforeSave: false });
 
+    // ✅ SendGrid Email send
+    const msg = {
+      to: updatedUser.email, 
+      from: process.env.FROM_EMAIL, 
+      subject: "Email Verification Code",
+      html: `
+        <h2>Your OTP Code</h2>
+        <p style="font-size:20px;font-weight:bold">${otp}</p>
+      `,
+    };
+
     try {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: updatedUser.email,
-        subject: "Email Verification Code",
-        html: `<h2>Your OTP Code</h2><p style="font-size:20px;font-weight:bold">${otp}</p>`,
-      });
+      await sgMail.send(msg);
+      console.log("OTP Email Sent ✅");
     } catch (mailErr) {
-      console.log("Email send fail but continue:", mailErr);
-      // Continue without throwing error
+      console.log("SendGrid Email Failed ❌ but continuing...", mailErr);
     }
 
     return res.status(200).json({
@@ -173,7 +233,6 @@ export const DateOFBirth = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 
 
