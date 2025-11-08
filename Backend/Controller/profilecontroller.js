@@ -91,7 +91,7 @@ export const loginUser = async (req, res) => {
       .cookie("token", token, {
         httpOnly: true,
         secure: isProduction,       
-        sameSite: isProduction?"None":"lax",   
+        sameSite: isProduction?"None":"Lax",   
         path:"/",  
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
@@ -314,18 +314,15 @@ export async function UserLogin(req,res) {
   req.json({message:"Welcome",user: req.user})
 }
 
-export async function LogOut(req,res){
-
-
+export async function LogOut(req, res) {
   try {
+    const isProduction = process.env.NODE_ENV === "production";
 
-    const isProduction=process.env.NODE_ENV=="production"
     res.clearCookie("token", {
       httpOnly: true,
-        secure: isProduction,       
-        sameSite:isProduction?"None":"lax",   
-        path:"/",  
-        maxAge: 7 * 24 * 60 * 60 * 1000,    // important for frontend-backend cross domain
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
+      path: "/", 
     });
 
     return res.status(200).json({
@@ -333,11 +330,10 @@ export async function LogOut(req,res){
       message: "Logged out successfully",
     });
   } catch (err) {
+    console.error("Logout Error:", err);
     return res.status(500).json({
       success: false,
       message: "Logout failed",
     });
   }
-
-
 }

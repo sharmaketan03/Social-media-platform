@@ -1,8 +1,9 @@
 import express from "express"
 import { checkAuth, loginUser, registerUser,DateOFBirth ,emailverify,updateProfile,UserLogin,LogOut} from "../Controller/profilecontroller.js"
 import {verifyToken} from "../middelware/jwtverify.js"
-import { getAlldata } from "../Controller/Data.js"
+import { getAlldata ,profileuser,EditProfiles,updatepic} from "../Controller/Data.js"
 import { uploadCloud } from "../middelware/cloudinaryUpload.js"
+
 let route=express.Router()
 
 route.post("/registration",registerUser)
@@ -14,6 +15,12 @@ route.post("/verifysendEmail-otp",emailverify)
 // route.get("/UserLoginOrNot",verifyToken,UserLogin)
 route.post("/userLogOut",verifyToken,LogOut)
 route.get("/getAllUser",verifyToken,getAlldata)
+route.get("/getProfile",verifyToken,profileuser)
+
+
+
+route.put("/editProfile",verifyToken,EditProfiles)
+route.put("/updateProfilepic",verifyToken,uploadCloud.single("profilePic"),updatepic)
 
 
 
