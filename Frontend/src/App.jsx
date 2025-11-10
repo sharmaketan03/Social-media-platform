@@ -1,5 +1,5 @@
 import React from 'react'
-import socket from './Components/socket'
+import socket from './Components/Socket.js'
 import { useEffect } from 'react'
 import ReactRouter from './Components/React-router'
 function App() {
