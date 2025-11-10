@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useContext } from "react";
 import instance from "../Components/axios";
 import { Search, Users } from "lucide-react";
 import { MyContext } from "../Components/UseContext";
-import socket from "../Components/socket";
+import socket from "../Components/socket.js";
 
 export default function Explore() {
   const [users, setUsers] = useState([]);
