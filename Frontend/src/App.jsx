@@ -5,29 +5,29 @@ import ReactRouter from './Components/React-router'
 import { MyContext } from './Components/UseContext.jsx'
 function App() {
 
-  let {userId}=useContext(MyContext)
-useEffect(()=>{
-    socket.on("connect",()=>{
-     console.log("SOcket Connected",socket.id)
+  let {userId}=useContext(MyContext)--
+  useEffect(()=>{
+    
+    const onConnect = () => {
+      console.log("Socket Connected", socket.id);
+      if (userId) {
+        socket.emit("register", userId);
+        console.log("📤 Registered user to socket:", userId);
+      }
+    };
 
+    const onDisconnect = () => {
+      console.log("Socket Disconnected");
+    };
 
-      if(userId){
-       socket.emit("register_user",userId)
-             console.log("📤 Registered user to socket:", userId);
-    }
-
-
-    })
-   
-    socket.on("disconnect",()=>{
-      console.log("SOcket Disconnected")
-    })
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
 
     return ()=>{
-      socket.off("connect")
-      socket.off("disconnect")
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
     }
-},[])
+  }, [userId])
 
   return (
    <ReactRouter/>
