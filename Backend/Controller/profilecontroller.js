@@ -116,7 +116,8 @@ export const checkAuth = async (req, res) => {
   return res.status(200).json({
     success: true,
     message: "User Authenticated",
-    user: req.user, // token se user aa raha
+    user: req.user, 
+    userId:req.userId// token se user aa raha
   });
 };
 

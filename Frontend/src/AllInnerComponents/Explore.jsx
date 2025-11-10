@@ -1,6 +1,8 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useContext } from "react";
 import instance from "../Components/axios";
 import { Search, Users } from "lucide-react";
+import { MyContext } from "../Components/UseContext";
+import socket from "../Components/socket";
 
 export default function Explore() {
   const [users, setUsers] = useState([]);
@@ -8,11 +10,14 @@ export default function Explore() {
   const [query, setQuery] = useState("");
   const [count, setCount] = useState(12);
   const [loading, setLoading] = useState(true);
-
+  
+  const {userId,setId}=useContext(MyContext)
+   console.log("userId Explore page:",userId)
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await instance.get("/profile/getAllUser", { withCredentials: true });
+        console.log(res)
         const updated = res.data.users.map((u) => ({
           ...u,
           followed: false,
@@ -38,9 +43,16 @@ export default function Explore() {
   }, [query, users]);
 
   function toggleFollow(id) {
+    console.log(id)
+
+    let senderId=userId
+  let  reciverId=id
+   console.log("senderID:",senderId,"reciverId:",reciverId)
     setUsers((prev) =>
       prev.map((u) => (u._id === id ? { ...u, followed: !u.followed } : u))
     );
+    console.log("📤 Emitting follow request:", { senderId, reciverId });
+    socket.emit("send follow-request",{senderId,reciverId})
   }
 
   function loadMore() {
@@ -125,6 +137,8 @@ export default function Explore() {
                     </button>
                   </div>
                 </article>
+
+
               ))}
             </div>
           )}

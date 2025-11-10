@@ -2,18 +2,20 @@ import UserAuth from "../Models/Profile.js";
 
 export async function getAlldata(req, res) {
   try {
-   
-    const users = await UserAuth.find(); 
-
+    // console.log(req.userId)
+    let users = await UserAuth.find(); 
+     
     if (!users || users.length === 0) {
       return res.status(404).json({ message: "No users found" });
     }
-
-    
+// console.log("users:::_",users)
+     users=users.filter(item=>item._id.toString()!==req.userId.toString())
+    // console.log(users)
     res.status(200).json({
       success: true,
       count: users.length,
       users: users,
+     
     });
   } catch (err) {
     console.error("Error fetching users:", err);

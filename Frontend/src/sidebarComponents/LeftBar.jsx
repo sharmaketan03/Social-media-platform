@@ -171,6 +171,7 @@ import {
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios"; // ✅ axios import
+import instance from "../Components/axios";
 
 export default function LeftBar() {
   const [openMore, setOpenMore] = useState(false);
@@ -181,8 +182,8 @@ export default function LeftBar() {
   const handleLogout = async () => {
     try {
       // backend pe logout API call
-      const res = await axios.post(
-        "http://localhost:5000/logout",
+      const res = await instance.post(
+       "/profile/userLogOut",
         {},
         { withCredentials: true } // cookie bhejne ke liye zaroori
       );
