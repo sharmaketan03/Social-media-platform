@@ -1,7 +1,7 @@
 import express from "express"
 import { checkAuth, loginUser, registerUser,DateOFBirth ,emailverify,updateProfile,UserLogin,LogOut} from "../Controller/profilecontroller.js"
 import {verifyToken} from "../middelware/jwtverify.js"
-import { getAlldata ,profileuser,EditProfiles,updatepic,getNotifications,sendFollowRequest} from "../Controller/Data.js"
+import { getAlldata ,profileuser,EditProfiles,updatepic,getNotifications,sendFollowRequest,getSentFollowRequestss} from "../Controller/Data.js"
 import { uploadCloud } from "../middelware/cloudinaryUpload.js"
 
 
@@ -25,6 +25,7 @@ route.put("/updateProfilepic",verifyToken,uploadCloud.single("profilePic"),updat
 route.post("/followrequest",verifyToken,sendFollowRequest)
 
 route.get("/notifications",verifyToken,getNotifications)
+route.get("/getSentFollowRequests",verifyToken,getSentFollowRequestss)
 
 
 

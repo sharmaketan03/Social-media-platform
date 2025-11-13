@@ -3,14 +3,13 @@ import instance from "../Components/axios";
 import { Search, Users } from "lucide-react";
 import { MyContext } from "../Components/UseContext";
 
-
 export default function Explore() {
   const [users, setUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [query, setQuery] = useState("");
   const [count, setCount] = useState(12);
   const [loading, setLoading] = useState(true);
-  const [disabledIds, setDisabledIds] = useState([]); 
+  const [disabledIds, setDisabledIds] = useState([]);
 
   const { userId } = useContext(MyContext);
   console.log("userId Explore page:", userId);
@@ -22,20 +21,35 @@ export default function Explore() {
         const res = await instance.get("/profile/getAllUser", {
           withCredentials: true,
         });
-        console.log(res);
         const updated = res.data.users.map((u) => ({
           ...u,
           followed: false,
         }));
         setAllUsers(updated);
         setUsers(updated.slice(0, 12));
-        setLoading(false);
       } catch (err) {
         console.log("Fetch error:", err);
+      } finally {
         setLoading(false);
       }
     };
     fetchUsers();
+  }, []);
+
+  // Fetch sent follow requests to disable buttons
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await instance.get("/profile/getSentFollowRequests", {
+          withCredentials: true,
+        });
+        console.log("Sent follow requests:", res.data);
+        setDisabledIds(res.data.sentIds || []);
+      } catch (err) {
+        console.log("Error fetching follow requests:", err);
+      }
+    };
+    fetchRequests();
   }, []);
 
   // Filtered users (search)
@@ -49,33 +63,22 @@ export default function Explore() {
   }, [query, users]);
 
   // Follow toggle handler
- async function toggleFollow(id) {
-    const senderId = userId;
-    const receiverId = id;
-
-    console.log("senderID:", senderId, "receiverId:", receiverId);
-
-    // Disable the button immediately
+  async function toggleFollow(id) {
     setDisabledIds((prev) => [...prev, id]);
-
-    // Update UI instantly
     setUsers((prev) =>
-      prev.map((u) => (u._id === id ? { ...u, followed: !u.followed } : u))
+      prev.map((u) => (u._id === id ? { ...u, followed: true } : u))
     );
 
-    try{
-         let res =await instance.post("/profile/followrequest",{receiverId},{withCredentials:true})
-          console.log("follow request sent",res)  
-
-    }catch(err){
-      console.log("error follow sending",err)
+    try {
+      const res = await instance.post(
+        "/profile/followrequest",
+        { receiverId: id },
+        { withCredentials: true }
+      );
+      console.log("Follow request sent:", res.data);
+    } catch (err) {
+      console.log("Error sending follow request:", err);
     }
-   
-    
-
-    // Listen for ack or error
-   
-     
   }
 
   // Load more users
@@ -85,7 +88,6 @@ export default function Explore() {
     setCount(next);
   }
 
-  // Loading UI
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-gray-500 text-lg">
@@ -145,8 +147,7 @@ export default function Explore() {
                   <div className="text-center">
                     <h3 className="font-semibold text-gray-800">{u.username}</h3>
                     <p className="text-sm text-gray-500">{u.fullName}</p>
-
-                    <p className="mt-2 text-xs text-gray-500 line-clamp-2 italic">
+                    <p className="mt-2 text-xs text-gray-500 italic">
                       {u.bio || "No bio available"}
                     </p>
 
@@ -155,16 +156,12 @@ export default function Explore() {
                       onClick={() => toggleFollow(u._id)}
                       disabled={disabledIds.includes(u._id)}
                       className={`mt-4 w-full py-1.5 rounded-full text-sm font-medium transition-all ${
-                        u.followed
-                          ? "border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
+                        disabledIds.includes(u._id)
+                          ? "border border-gray-300 text-gray-700 bg-white opacity-70 cursor-not-allowed"
                           : "bg-gradient-to-r from-purple-600 to-indigo-500 text-white hover:opacity-90"
-                      } ${disabledIds.includes(u._id) ? "opacity-60 cursor-not-allowed" : ""}`}
+                      }`}
                     >
-                      {disabledIds.includes(u._id)
-                        ? "Sent..."
-                        : u.followed
-                        ? "Request Sent"
-                        : "Follow"}
+                      {disabledIds.includes(u._id) ? "Request Sent" : "Follow"}
                     </button>
                   </div>
                 </article>
@@ -187,7 +184,6 @@ export default function Explore() {
           )}
         </div>
 
-        {/* Footer */}
         <footer className="mt-10 text-center text-xs text-gray-400">
           Discover People • Powered by your backend 💜
         </footer>

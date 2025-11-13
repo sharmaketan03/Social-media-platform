@@ -173,3 +173,27 @@ export async function getNotifications(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
+
+
+export async function getSentFollowRequestss(req, res) {
+  try {
+    console.log("getSentFollowRequests controller reached", req.userId);
+
+    const loginUserId = req.userId;
+
+    // 🔍 sab users me se wo filter karo jinke followRequests me ye userId mila
+    const usersWithRequest = await UserAuth.find({
+      "followRequests.senderId": loginUserId
+    }).select("_id username profilePic");
+
+    // sirf IDs ka array bna lo
+    const sentIds = usersWithRequest.map((user) => user._id.toString());
+
+    console.log("Users jinko request bheji gayi:", sentIds);
+
+    res.status(200).json({ sentIds });
+  } catch (err) {
+    console.error("Error fetching sent requests:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
