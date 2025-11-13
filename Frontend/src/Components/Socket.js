@@ -1,11 +1,10 @@
-import {io} from "socket.io-client"
+import { io } from "socket.io-client";
 
-
-const backend=import.meta.env.VITE_BACKEND_URL||import.meta.env.VITE_BACKEND_RENDER
-
-
-const socket=io(backend,{
-    withCredentials:true,
-    transports:["websocket"]
+const socket = io("http://localhost:5000", {
+  transports: ["websocket"],
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
 });
+
 export default socket;

@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useContext } from "react";
 import instance from "../Components/axios";
 import { Search, Users } from "lucide-react";
 import { MyContext } from "../Components/UseContext";
-import socket from "../Components/Socket.js";
+
 
 export default function Explore() {
   const [users, setUsers] = useState([]);
@@ -10,14 +10,19 @@ export default function Explore() {
   const [query, setQuery] = useState("");
   const [count, setCount] = useState(12);
   const [loading, setLoading] = useState(true);
-  
-  const {userId,setId}=useContext(MyContext)
-   console.log("userId Explore page:",userId)
+  const [disabledIds, setDisabledIds] = useState([]); 
+
+  const { userId } = useContext(MyContext);
+  console.log("userId Explore page:", userId);
+
+  // Fetch all users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await instance.get("/profile/getAllUser", { withCredentials: true });
-        console.log(res)
+        const res = await instance.get("/profile/getAllUser", {
+          withCredentials: true,
+        });
+        console.log(res);
         const updated = res.data.users.map((u) => ({
           ...u,
           followed: false,
@@ -33,6 +38,7 @@ export default function Explore() {
     fetchUsers();
   }, []);
 
+  // Filtered users (search)
   const filtered = useMemo(() => {
     const q = query.toLowerCase();
     return users.filter(
@@ -42,25 +48,44 @@ export default function Explore() {
     );
   }, [query, users]);
 
-  function toggleFollow(id) {
-    console.log(id)
+  // Follow toggle handler
+ async function toggleFollow(id) {
+    const senderId = userId;
+    const receiverId = id;
 
-    let senderId=userId
-  let  reciverId=id
-   console.log("senderID:",senderId,"reciverId:",reciverId)
+    console.log("senderID:", senderId, "receiverId:", receiverId);
+
+    // Disable the button immediately
+    setDisabledIds((prev) => [...prev, id]);
+
+    // Update UI instantly
     setUsers((prev) =>
       prev.map((u) => (u._id === id ? { ...u, followed: !u.followed } : u))
     );
-    console.log("📤 Emitting follow request:", { senderId, reciverId });
-    socket.emit("send follow-request",{senderId,reciverId})
+
+    try{
+         let res =await instance.post("/profile/followrequest",{receiverId},{withCredentials:true})
+          console.log("follow request sent",res)  
+
+    }catch(err){
+      console.log("error follow sending",err)
+    }
+   
+    
+
+    // Listen for ack or error
+   
+     
   }
 
+  // Load more users
   function loadMore() {
     const next = Math.min(allUsers.length, count + 12);
     setUsers(allUsers.slice(0, next));
     setCount(next);
   }
 
+  // Loading UI
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-gray-500 text-lg">
@@ -125,20 +150,24 @@ export default function Explore() {
                       {u.bio || "No bio available"}
                     </p>
 
+                    {/* Follow Button */}
                     <button
                       onClick={() => toggleFollow(u._id)}
+                      disabled={disabledIds.includes(u._id)}
                       className={`mt-4 w-full py-1.5 rounded-full text-sm font-medium transition-all ${
                         u.followed
                           ? "border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
                           : "bg-gradient-to-r from-purple-600 to-indigo-500 text-white hover:opacity-90"
-                      }`}
+                      } ${disabledIds.includes(u._id) ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
-                      {u.followed ? "Following" : "Follow"}
+                      {disabledIds.includes(u._id)
+                        ? "Sent..."
+                        : u.followed
+                        ? "Request Sent"
+                        : "Follow"}
                     </button>
                   </div>
                 </article>
-
-
               ))}
             </div>
           )}

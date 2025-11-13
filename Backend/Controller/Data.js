@@ -82,3 +82,94 @@ export async function updatepic(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
+
+
+
+// controllers/followController.js
+
+
+
+
+
+
+
+
+
+
+
+export async function sendFollowRequest(req, res) {
+  console.log("sendFollowRequest controller reached", req.body);
+  const { receiverId } = req.body;
+  const loginUser = req.userId;
+
+  console.log("Login User ID:", loginUser, "Receiver ID:", receiverId);
+
+  try {
+    const receiver = await UserAuth.findById(receiverId);
+    const sender = await UserAuth.findById(loginUser);
+
+    if (!receiver || !sender) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // ✅ Check if already requested
+    const alreadyRequested = receiver.followRequests.some(
+      (req) => req.senderId.toString() === loginUser.toString()
+    );
+    if (alreadyRequested) {
+      return res.status(400).json({ message: "Follow request already sent" });
+    }
+
+    // ✅ Push follow request
+    receiver.followRequests.push({
+      senderId: loginUser,
+      isRead: false,
+      createdAt: new Date(),
+    });
+
+    // ✅ Push notification
+    receiver.notifications.push({
+      senderId: loginUser,
+      receiverId,
+      type: "followRequest",
+      message: `${sender.username} sent you a follow request`,
+      profilePic: sender.profilePic,
+      isRead: false,
+      createdAt: new Date(),
+    });
+
+    await receiver.save();
+
+    res
+      .status(200)
+      .json({ message: "Follow request sent & notification created" });
+  } catch (err) {
+    console.error("Error in sendFollowRequest:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+
+
+export async function getNotifications(req, res) {
+  try {
+    const userId = req.userId;
+
+    // 🔹 Step 1: Fetch only 'notifications' field (no need for full user data)
+    const user = await UserAuth.findById(userId)
+      .select("notifications")
+     
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+   console.log("User notifications fetched:", user);
+    // 🔹 Step 2: Return all notifications sorted (latest first)
+    const notifications = [...user.notifications].reverse();
+     console.log("Fetched notifications:", notifications);
+    res.status(200).json({ notifications });
+  } catch (err) {
+    console.error("Error fetching notifications:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}

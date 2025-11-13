@@ -12,8 +12,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import RightContent from "../sidebarComponents/RightContent";
 import Profile from "../AllInnerComponents/Profile";
 import EditProfile from "../AllInnerComponents/EditProfile"
-import Notification from "../AllInnerComponents/Notification.jsx"
-// import ProfilePicUpdate from "../AllInnerComponents/ProfilePicUpdate"
+import Notification from "../AllInnerComponents/Notifications";  
 const router = createBrowserRouter([
   { index: true, element: <Login /> },
   { path: "/register", element: <Register /> },
@@ -33,7 +32,7 @@ const router = createBrowserRouter([
       { path: "explore", element: <Explore /> }, 
       {path:"profile",element:<Profile/>},
       {path:"editProfile",element:<EditProfile/>} ,
-      {path:"notifications",element:<Notification/>}
+      {path: "notifications", element: <Notification />},
      
     ],
   },

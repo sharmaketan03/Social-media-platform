@@ -18,7 +18,23 @@ const UserSchema = new mongoose.Schema(
 
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    followRequests:[{type:mongoose.Schema.Types.ObjectId,ref:"User"}],
+    followRequests:[ {
+    senderId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    isRead: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
+  }],
+  notifications: [
+  {
+    senderId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  type: { type: String }, // followRequest, like, comment etc.
+  message: { type: String },
+  profilePic: { type: String }, // 👈 add this field
+  isRead: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now }
+  },
+],
+
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
 

@@ -1,8 +1,9 @@
 import express from "express"
 import { checkAuth, loginUser, registerUser,DateOFBirth ,emailverify,updateProfile,UserLogin,LogOut} from "../Controller/profilecontroller.js"
 import {verifyToken} from "../middelware/jwtverify.js"
-import { getAlldata ,profileuser,EditProfiles,updatepic} from "../Controller/Data.js"
+import { getAlldata ,profileuser,EditProfiles,updatepic,getNotifications,sendFollowRequest} from "../Controller/Data.js"
 import { uploadCloud } from "../middelware/cloudinaryUpload.js"
+
 
 let route=express.Router()
 
@@ -21,7 +22,18 @@ route.get("/getProfile",verifyToken,profileuser)
 
 route.put("/editProfile",verifyToken,EditProfiles)
 route.put("/updateProfilepic",verifyToken,uploadCloud.single("profilePic"),updatepic)
+route.post("/followrequest",verifyToken,sendFollowRequest)
+
+route.get("/notifications",verifyToken,getNotifications)
 
 
+
+
+
+
+
+
+
+    
 
 export default route
