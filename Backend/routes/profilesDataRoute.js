@@ -1,9 +1,9 @@
-import express from "express"
+import express, { request } from "express"
 import { checkAuth, loginUser, registerUser,DateOFBirth ,emailverify,updateProfile,UserLogin,LogOut} from "../Controller/profilecontroller.js"
 import {verifyToken} from "../middelware/jwtverify.js"
-import { getAlldata ,profileuser,EditProfiles,updatepic,getNotifications,sendFollowRequest,getSentFollowRequestss} from "../Controller/Data.js"
+import { getAlldata ,profileuser,EditProfiles,updatepic,getNotifications,sendFollowRequest,getAllFollowData,requestNotificationResponse,followback} from "../Controller/Data.js"
 import { uploadCloud } from "../middelware/cloudinaryUpload.js"
-
+import { chatUsersList ,accountsettings} from "../Controller/chatController.js"
 
 let route=express.Router()
 
@@ -25,7 +25,11 @@ route.put("/updateProfilepic",verifyToken,uploadCloud.single("profilePic"),updat
 route.post("/followrequest",verifyToken,sendFollowRequest)
 
 route.get("/notifications",verifyToken,getNotifications)
-route.get("/getSentFollowRequests",verifyToken,getSentFollowRequestss)
+route.get("/getSentFollowRequests",verifyToken,getAllFollowData)
+route.post("/notifications/:notifId/:action", verifyToken, requestNotificationResponse);
+route.post("/followback/:senderId",verifyToken,followback)
+route.post("/Accountsettings",verifyToken,accountsettings)
+route.get("/chatUsers",verifyToken,chatUsersList)
 
 
 

@@ -226,7 +226,7 @@ export default function Profile() {
               Edit Profile
             </Link>
 
-            <Settings size={20} className="cursor-pointer" />
+           <Link to={"/home/settings"}> <Settings size={20} className="cursor-pointer" /></Link>
           </div>
 
           <div className="flex justify-center sm:justify-start gap-6 text-gray-700">

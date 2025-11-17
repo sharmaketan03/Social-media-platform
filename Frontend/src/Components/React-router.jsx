@@ -13,6 +13,8 @@ import RightContent from "../sidebarComponents/RightContent";
 import Profile from "../AllInnerComponents/Profile";
 import EditProfile from "../AllInnerComponents/EditProfile"
 import Notification from "../AllInnerComponents/Notifications";  
+import MessagesPage from "../AllInnerComponents/Message";
+import Settings from "../AllInnerComponents/Settings";
 const router = createBrowserRouter([
   { index: true, element: <Login /> },
   { path: "/register", element: <Register /> },
@@ -33,6 +35,8 @@ const router = createBrowserRouter([
       {path:"profile",element:<Profile/>},
       {path:"editProfile",element:<EditProfile/>} ,
       {path: "notifications", element: <Notification />},
+      {path: "messages", element: <MessagesPage />},
+      {path: "settings", element: <Settings />},
      
     ],
   },
